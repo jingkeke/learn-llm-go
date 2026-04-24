@@ -42,11 +42,29 @@ func main() {
 	currentDate := time.Now().Format("2006-01-02")
 	contextPrompt := fmt.Sprintf("Today's date is %s. %s", currentDate, cfg.Prompt)
 
+	var searchProvider laconic.SearchProvider
+	switch cfg.SearchProvider {
+	case "brave":
+		if cfg.SearchAPIKey == "" {
+			fmt.Fprintln(os.Stderr, "Error: --search-api-key is required for Brave search")
+			os.Exit(1)
+		}
+		searchProvider = search.NewBrave(cfg.SearchAPIKey)
+	case "tavily":
+		if cfg.SearchAPIKey == "" {
+			fmt.Fprintln(os.Stderr, "Error: --search-api-key is required for Tavily search")
+			os.Exit(1)
+		}
+		searchProvider = search.NewTavily(cfg.SearchAPIKey, "basic")
+	default:
+		searchProvider = search.NewDuckDuckGo()
+	}
+
 	agent := laconic.New(
 		laconic.WithPlannerModel(adapter),
 		laconic.WithSynthesizerModel(adapter),
 		laconic.WithFinalizerModel(adapter),
-		laconic.WithSearchProvider(search.NewDuckDuckGo()),
+		laconic.WithSearchProvider(searchProvider),
 		laconic.WithStrategyName("scratchpad"), // use default strategy
 		laconic.WithDebug(true),                // useful for CLI search tools
 	)

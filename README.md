@@ -16,6 +16,10 @@
 - `--base-url` 或 `OPENAI_BASE_URL`: (可选) 自定义模型服务的 Base URL (例如本地的 Ollama, vLLM 等)。
 - `--model` 或 `OPENAI_MODEL`: (可选) 模型名称 (例如 `gpt-4o`, `qwen2.5` 等)。
 
+针对 `search-cli` (Agent 搜索)，额外支持配置搜索引擎：
+- `--search-provider` 或 `SEARCH_PROVIDER`: 搜索引擎。支持 `duckduckgo` (默认), `brave`, `tavily`。
+- `--search-api-key` 或 `SEARCH_API_KEY`: 搜索引擎的 API Key (Brave 或 Tavily 需要)。
+
 ## 编译与运行方式
 
 在项目根目录下编译所有工具：

@@ -8,11 +8,13 @@ import (
 )
 
 type Config struct {
-	Key     string
-	BaseURL string
-	Model   string
-	Prompt  string
-	Image   string // specific to vision
+	Key            string
+	BaseURL        string
+	Model          string
+	Prompt         string
+	Image          string // specific to vision
+	SearchProvider string // specific to search CLI
+	SearchAPIKey   string // specific to search CLI (for Brave/Tavily)
 }
 
 func ParseFlags() (*Config, []string) {
@@ -25,6 +27,8 @@ func ParseFlags() (*Config, []string) {
 	fs.StringVar(&cfg.Model, "model", "", "Model to use (or set OPENAI_MODEL)")
 	fs.StringVar(&cfg.Prompt, "prompt", "", "Text prompt to send")
 	fs.StringVar(&cfg.Image, "image", "", "Path to image file or URL (for vision)")
+	fs.StringVar(&cfg.SearchProvider, "search-provider", "duckduckgo", "Search provider: duckduckgo, brave, tavily (for search)")
+	fs.StringVar(&cfg.SearchAPIKey, "search-api-key", "", "API Key for search provider (or set SEARCH_API_KEY)")
 
 	fs.Parse(os.Args[1:])
 
@@ -38,6 +42,14 @@ func ParseFlags() (*Config, []string) {
 
 	if cfg.Model == "" {
 		cfg.Model = os.Getenv("OPENAI_MODEL")
+	}
+
+	if cfg.SearchAPIKey == "" {
+		cfg.SearchAPIKey = os.Getenv("SEARCH_API_KEY")
+	}
+
+	if os.Getenv("SEARCH_PROVIDER") != "" && cfg.SearchProvider == "duckduckgo" {
+		cfg.SearchProvider = os.Getenv("SEARCH_PROVIDER")
 	}
 
 	// If prompt is not passed via flag, take the remaining arguments as prompt
