@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"laconic-cli-tools/internal/config"
 
@@ -37,17 +38,21 @@ func main() {
 
 	adapter := newLLMAdapter(client)
 
+	// Add current date to the prompt to give context to the AI
+	currentDate := time.Now().Format("2006-01-02")
+	contextPrompt := fmt.Sprintf("Today's date is %s. %s", currentDate, cfg.Prompt)
+
 	agent := laconic.New(
 		laconic.WithPlannerModel(adapter),
 		laconic.WithSynthesizerModel(adapter),
 		laconic.WithFinalizerModel(adapter),
 		laconic.WithSearchProvider(search.NewDuckDuckGo()),
 		laconic.WithStrategyName("scratchpad"), // use default strategy
-		laconic.WithDebug(true), // useful for CLI search tools
+		laconic.WithDebug(true),                // useful for CLI search tools
 	)
 
 	ctx := context.Background()
-	result, err := agent.Answer(ctx, cfg.Prompt)
+	result, err := agent.Answer(ctx, contextPrompt)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error answering query: %v\n", err)
 		os.Exit(1)
